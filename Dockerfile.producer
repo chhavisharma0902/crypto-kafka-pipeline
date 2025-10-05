@@ -1,0 +1,23 @@
+# Use lightweight Python image
+FROM python:3.11-slim
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy dependency list first (for caching)
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the producer script
+COPY producer.py .
+
+# Environment variables with safe defaults
+ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+ENV KAFKA_TOPIC=api-raw-data
+ENV POLL_INTERVAL_SECONDS=10
+ENV USE_API=True
+
+# Run the producer
+CMD ["python", "producer.py"]

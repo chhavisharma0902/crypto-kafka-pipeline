@@ -1,43 +1,75 @@
-# Real-Time Cryptocurrency Data Pipeline 🚀
+# Crypto Kafka Pipeline
 
-This project demonstrates a **real-time data pipeline** using **Kafka, Zookeeper, MongoDB, and Python**.  
-It fetches live cryptocurrency prices from the **CoinGecko API**, processes them with Kafka, and stores the results in MongoDB — all running locally with Docker.
+## Project Overview
+This project is an end-to-end **real-time cryptocurrency data pipeline** using **Kafka, Python, and MongoDB**. It allows you to:  
+- Produce cryptocurrency data streams with Python (`producer.py`)  
+- Consume data streams in real-time (`consumer.py`)  
+- Store data in **MongoDB** for further analysis  
 
----
-
-## 📂 Project Structure
-
-crypto-kafka-pipeline/
-├─ docker-compose.yml # Defines all services
-├─ producer/ # Fetches data from CoinGecko and sends to Kafka
-│ ├─ producer.py
-│ └─ Dockerfile
-├─ processor/ # Processes raw data and publishes to a new Kafka topic
-│ ├─ processor.py
-│ └─ Dockerfile
-├─ consumer/ # Reads processed data and stores in MongoDB
-│ ├─ consumer.py
-│ └─ Dockerfile
-
+The system is fully containerized using **Docker** for easy deployment.
 
 ---
 
-## ⚙️ Components
-
-- **Zookeeper** – Coordinates Kafka brokers  
-- **Kafka** – Messaging backbone with topics:
-  - `api-raw-data` (raw data from API)
-  - `api-processed-data` (filtered + enriched data)
-- **Producer (Python)** – Pulls live data from CoinGecko API every 10 seconds  
-- **Processor (Python)** – Filters for Bitcoin & Ethereum, adds timestamp/status  
-- **Consumer (Python)** – Inserts processed data into MongoDB  
-- **MongoDB** – Stores the results for querying/analysis  
+## Features
+- Real-time data streaming with **Kafka**
+- Python producer and consumer integration
+- Storage in MongoDB for persistence
+- Works offline locally using Docker containers
+- Easily extendable for additional crypto data sources or analytics
 
 ---
 
-## 🛠️ Setup Instructions
+## Prerequisites
+- Python 3.12+  
+- Docker & Docker Compose  
+- Virtual environment (optional, but recommended)  
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/<your-username>/crypto-kafka-pipeline.git
-cd crypto-kafka-pipeline
+Python dependencies (install via `pip install -r requirements.txt`):
+- `kafka-python`  
+- `pymongo`  
+
+---
+
+## Project Structure
+
+CRYPTO-KAFKA-PIPELINE/
+│
+├─ .venv/                
+├─ Dockerfile.consumer          
+├─ Dockerfile.processor         
+├─ Dockerfile.producer           
+├─ consumer.py           
+├─ producer.py
+|─ processor.py          
+├─ docker-compose.yml    
+|─ README.md  
+|─ requirements.txt
+
+
+## Setup and Running
+
+### 1. Start Docker Containers
+docker-compose up -d zookeeper mongodb kafka
+Check that containers are running:
+docker ps
+
+### 2. Activate Python Virtual Environment
+python -m venv .venv
+.\.venv\Scripts\activate    # Windows
+source .venv/bin/activate   # Linux/Mac
+pip install -r requirements.txt
+
+### 3. Run Producer
+python producer.py
+This sends crypto data messages to the Kafka topic.
+
+### 4. Run Consumer
+python consumer.py
+The consumer reads messages from Kafka and stores them in MongoDB.
+
+### 5. Verify MongoDB Data
+Enter the MongoDB shell:
+docker exec -it mongodb mongosh
+Switch to the database and check inserted data:
+use crypto_db
+db.crypto_data.find().pretty()

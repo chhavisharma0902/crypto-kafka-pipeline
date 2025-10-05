@@ -1,28 +1,42 @@
-from kafka import KafkaConsumer
+import os
 import json
+import time
+from kafka import KafkaConsumer
 from pymongo import MongoClient
 
-# Kafka setup
+# === Configuration ===
+# Automatically switch between Docker and local environments
+KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+TOPIC = os.getenv("KAFKA_TOPIC", "crypto-topic")
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_DB = os.getenv("MONGO_DB", "crypto_db")
+MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "crypto_data")
+
+# === Kafka Consumer Setup ===
 consumer = KafkaConsumer(
-    'crypto-topic',  # Replace with your topic name
-    bootstrap_servers='localhost:9092',
-    auto_offset_reset='earliest',
+    TOPIC,
+    bootstrap_servers=KAFKA_BOOTSTRAP,
+    auto_offset_reset="earliest",
     enable_auto_commit=True,
-    group_id='crypto-group',
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+    group_id="crypto-group",
+    value_deserializer=lambda v: json.loads(v.decode("utf-8")),
 )
 
-# MongoDB setup
-client = MongoClient('mongodb://localhost:27017/')
-db = client['crypto_db']        # Database name
-collection = db['crypto_data']  # Collection name
+# === MongoDB Connection ===
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client[MONGO_DB]
+collection = db[MONGO_COLLECTION]
 
-print("Consumer is running and listening to messages...")
+print(f"[Consumer] Started. Listening for messages on topic '{TOPIC}'...")
 
-for message in consumer:
-    data = message.value
-    print(f"Received: {data}")
-
-    # Insert into MongoDB
-    collection.insert_one(data)
-    print("Saved to MongoDB")
+# === Message Processing Loop ===
+while True:
+    try:
+        for msg in consumer:
+            record = msg.value
+            collection.insert_one(record)
+            print(f"[Consumer] Inserted into MongoDB: {record}")
+    except Exception as e:
+        print("[Consumer] Error:", e)
+        time.sleep(5)

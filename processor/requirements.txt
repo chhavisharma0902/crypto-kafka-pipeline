@@ -1,2 +1,0 @@
-kafka-python    # to consume & produce messages in Kafka
-pandas          # optional, for transforming or filtering data

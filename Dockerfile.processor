@@ -1,0 +1,23 @@
+# Use lightweight Python image
+FROM python:3.11-slim
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy dependency list first (for caching)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the processor script into the container
+COPY processor.py .
+
+# Set default environment variables
+ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+ENV INPUT_TOPIC=api-raw-data
+ENV OUTPUT_TOPIC=api-processed-data
+ENV PROCESS_INTERVAL_SECONDS=5
+
+# Default command to run the processor
+CMD ["python", "processor.py"]

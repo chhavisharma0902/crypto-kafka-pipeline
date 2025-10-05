@@ -1,2 +1,0 @@
-kafka-python    # to consume messages from Kafka
-pymongo         # to connect to MongoDB and insert data
