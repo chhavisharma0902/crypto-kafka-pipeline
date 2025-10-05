@@ -30,7 +30,38 @@ Python dependencies (install via `pip install -r requirements.txt`):
 
 ---
 
+<<<<<<< HEAD
 ## Project Structure
+=======
+## Setup and Running
+
+### 1. Start Docker Containers
+docker-compose up -d zookeeper mongodb kafka
+Check that containers are running:
+docker ps
+
+### 2. Activate Python Virtual Environment
+python -m venv .venv
+.\.venv\Scripts\activate    # Windows
+source .venv/bin/activate   # Linux/Mac
+pip install -r requirements.txt
+
+### 3. Run Producer
+python producer.py
+This sends crypto data messages to the Kafka topic.
+
+### 4. Run Consumer
+python consumer.py
+The consumer reads messages from Kafka and stores them in MongoDB.
+
+### 5. Verify MongoDB Data
+Enter the MongoDB shell:
+docker exec -it mongodb mongosh
+Switch to the database and check inserted data:
+use crypto_db
+db.crypto_data.find().pretty()
+ns
+>>>>>>> f3ece8c277a8cb3edfab74fc0e2ade7ecc4a57d9
 
 CRYPTO-KAFKA-PIPELINE/
 │
